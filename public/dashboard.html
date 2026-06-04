@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>County Health Executive Dashboard</title>
+    <title>Nakuru County Health Inventory System</title>
 
     <style>
         body {
@@ -12,24 +12,10 @@
         }
 
         .header {
+            padding: 18px;
             background: #0f172a;
-            padding: 18px 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 1px solid #1f2a44;
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: #2563eb;
-            border-radius: 8px;
-        }
-
-        .title {
-            font-size: 18px;
             font-weight: bold;
+            border-bottom: 1px solid #1f2a44;
         }
 
         .container {
@@ -39,29 +25,49 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
         .card {
             background: #111c33;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #1f2a44;
+            padding: 12px;
+            border-radius: 10px;
         }
 
         .value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             margin-top: 5px;
         }
 
-        .alerts {
+        .panel {
             background: #111c33;
-            border-left: 4px solid #ef4444;
-            padding: 12px;
-            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 6px;
+            border: none;
+            width: 180px;
+        }
+
+        button {
+            padding: 10px 12px;
+            background: #2563eb;
+            border: none;
+            color: white;
             border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
         }
 
         table {
@@ -73,7 +79,7 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 10px;
             border-bottom: 1px solid #1f2a44;
             text-align: left;
         }
@@ -82,27 +88,14 @@
             background: #0f172a;
         }
 
-        .low {
-            color: #ef4444;
-            font-weight: bold;
-        }
+        .low { color: #ef4444; font-weight: bold; }
+        .ok { color: #22c55e; }
 
-        .ok {
-            color: #22c55e;
-        }
-
-        button {
-            padding: 10px 14px;
-            background: #2563eb;
-            border: none;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
+        .alerts {
+            border-left: 4px solid #ef4444;
+            padding: 10px;
+            background: #111c33;
             margin-bottom: 15px;
-        }
-
-        button:hover {
-            background: #1d4ed8;
         }
     </style>
 </head>
@@ -110,41 +103,47 @@
 <body>
 
 <div class="header">
-    <div class="logo"></div>
-    <div class="title">Nakuru County Health Inventory Executive Dashboard</div>
+    🏥 Nakuru County Health Inventory Control System
 </div>
 
 <div class="container">
 
-    <!-- KPI CARDS -->
+    <!-- KPI -->
     <div class="grid">
-        <div class="card">
-            Total Items
-            <div class="value" id="total">0</div>
-        </div>
-
-        <div class="card">
-            Low Stock Alerts
-            <div class="value" id="low">0</div>
-        </div>
-
-        <div class="card">
-            Expired Items
-            <div class="value" id="expired">0</div>
-        </div>
-
-        <div class="card">
-            System Status
-            <div class="value" style="color:#22c55e;">ACTIVE</div>
-        </div>
+        <div class="card">Total<div class="value" id="total">0</div></div>
+        <div class="card">Low Stock<div class="value" id="low">0</div></div>
+        <div class="card">Expired<div class="value" id="expired">0</div></div>
+        <div class="card">Status<div class="value">ACTIVE</div></div>
     </div>
 
-    <!-- ALERT PANEL -->
-    <div class="alerts" id="alerts">
-        Loading alerts...
+    <!-- ALERTS -->
+    <div class="alerts" id="alerts">Loading...</div>
+
+    <!-- CONTROLS -->
+    <div class="panel">
+
+        <h3>Add Stock</h3>
+
+        <input id="name" placeholder="Medicine">
+        <input id="facility" placeholder="Facility">
+        <input id="qty" type="number" placeholder="Qty">
+        <input id="reorder" type="number" placeholder="Reorder Level">
+        <input id="expiry" type="date">
+
+        <button onclick="addStock()">Add Stock</button>
     </div>
 
-    <button onclick="loadData()">Refresh Data</button>
+    <!-- FILTER -->
+    <div class="panel">
+        <select id="filter" onchange="render()">
+            <option value="all">All Facilities</option>
+            <option value="Nakuru Level 5">Nakuru Level 5</option>
+            <option value="Molo Hospital">Molo Hospital</option>
+            <option value="Naivasha Hospital">Naivasha Hospital</option>
+        </select>
+
+        <button onclick="load()">Refresh</button>
+    </div>
 
     <!-- TABLE -->
     <table>
@@ -152,8 +151,9 @@
             <tr>
                 <th>Medicine</th>
                 <th>Facility</th>
-                <th>Quantity</th>
+                <th>Qty</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
 
@@ -166,35 +166,56 @@
 
 let data = [];
 
-function loadData() {
+function load() {
     fetch("/api/inventory")
-        .then(res => res.json())
+        .then(r => r.json())
         .then(res => {
             data = res;
             render();
         });
 }
 
+function addStock() {
+
+    const item = {
+        name: document.getElementById("name").value,
+        facility: document.getElementById("facility").value,
+        quantity: parseInt(document.getElementById("qty").value),
+        reorder: parseInt(document.getElementById("reorder").value),
+        expiry: document.getElementById("expiry").value
+    };
+
+    fetch("/api/inventory", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(item)
+    }).then(() => load());
+}
+
+function reduceStock(index) {
+    data[index].quantity -= 1;
+    render();
+}
+
 function render() {
 
     let low = 0;
     let expired = 0;
-    let table = "";
-    let alerts = "";
+    let html = "";
 
-    data.forEach(item => {
+    const filter = document.getElementById("filter").value;
 
-        let isLow = item.quantity <= item.reorder;
-        let isExpired = new Date(item.expiry) < new Date();
+    data.forEach((item, i) => {
+
+        if (filter !== "all" && item.facility !== filter) return;
+
+        const isLow = item.quantity <= item.reorder;
+        const isExpired = new Date(item.expiry) < new Date();
 
         if (isLow) low++;
         if (isExpired) expired++;
 
-        if (isLow || isExpired) {
-            alerts += `<div>⚠ ${item.name} - ${item.facility}</div>`;
-        }
-
-        table += `
+        html += `
         <tr>
             <td>${item.name}</td>
             <td>${item.facility}</td>
@@ -202,17 +223,22 @@ function render() {
             <td class="${isLow ? 'low' : 'ok'}">
                 ${isLow ? "LOW STOCK" : "OK"}
             </td>
+            <td>
+                <button onclick="reduceStock(${i})">-1 Dispense</button>
+            </td>
         </tr>`;
     });
 
-    document.getElementById("table").innerHTML = table;
-    document.getElementById("total").innerText = data.length;
+    document.getElementById("table").innerHTML = html;
     document.getElementById("low").innerText = low;
     document.getElementById("expired").innerText = expired;
-    document.getElementById("alerts").innerHTML = alerts || "✔ All systems stable";
+    document.getElementById("total").innerText = data.length;
+
+    document.getElementById("alerts").innerHTML =
+        low > 0 ? `⚠ ${low} items require immediate reorder` : "✔ All systems stable";
 }
 
-loadData();
+load();
 
 </script>
 
