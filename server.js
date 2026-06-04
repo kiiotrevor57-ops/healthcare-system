@@ -25,8 +25,12 @@ const pool = new Pool({
 // =========================
 // HEALTH CHECK
 // =========================
+const path = require("path");
+
+app.use(express.static("public"));
+
 app.get("/", (req, res) => {
-    res.send("Healthcare System API is running 🚀");
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
 // =========================
