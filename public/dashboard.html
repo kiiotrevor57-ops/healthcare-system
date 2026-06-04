@@ -1,19 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>County Health Dashboard</title>
+    <title>County Health Executive Dashboard</title>
 
     <style>
         body {
             margin: 0;
             font-family: Arial;
-            background: #0f172a;
-            color: #e2e8f0;
+            background: #0b1220;
+            color: #e5e7eb;
         }
 
         .header {
-            padding: 20px;
-            background: #111c33;
+            background: #0f172a;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #1f2a44;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: #2563eb;
+            border-radius: 8px;
+        }
+
+        .title {
             font-size: 18px;
             font-weight: bold;
         }
@@ -25,48 +39,70 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
         .card {
             background: #111c33;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 12px;
+            border: 1px solid #1f2a44;
+        }
+
+        .value {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
         }
 
         .alerts {
-            background: #1f2937;
-            padding: 10px;
-            border-left: 4px solid red;
+            background: #111c33;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
             margin-bottom: 20px;
+            border-radius: 8px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            background: #111c33;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #1f2a44;
             text-align: left;
         }
 
+        th {
+            background: #0f172a;
+        }
+
         .low {
-            color: red;
+            color: #ef4444;
+            font-weight: bold;
         }
 
         .ok {
-            color: green;
+            color: #22c55e;
         }
 
         button {
-            padding: 10px;
-            background: #3b82f6;
+            padding: 10px 14px;
+            background: #2563eb;
             border: none;
             color: white;
+            border-radius: 8px;
             cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
         }
     </style>
 </head>
@@ -74,35 +110,53 @@
 <body>
 
 <div class="header">
-    🏥 County Health Inventory System
+    <div class="logo"></div>
+    <div class="title">Nakuru County Health Inventory Executive Dashboard</div>
 </div>
 
 <div class="container">
 
+    <!-- KPI CARDS -->
     <div class="grid">
-        <div class="card">Total: <span id="total">0</span></div>
-        <div class="card">Low Stock: <span id="low">0</span></div>
-        <div class="card">Expired: <span id="expired">0</span></div>
-        <div class="card">System: Active</div>
+        <div class="card">
+            Total Items
+            <div class="value" id="total">0</div>
+        </div>
+
+        <div class="card">
+            Low Stock Alerts
+            <div class="value" id="low">0</div>
+        </div>
+
+        <div class="card">
+            Expired Items
+            <div class="value" id="expired">0</div>
+        </div>
+
+        <div class="card">
+            System Status
+            <div class="value" style="color:#22c55e;">ACTIVE</div>
+        </div>
     </div>
 
+    <!-- ALERT PANEL -->
     <div class="alerts" id="alerts">
         Loading alerts...
     </div>
 
-    <button onclick="loadData()">Refresh</button>
+    <button onclick="loadData()">Refresh Data</button>
 
-    <br><br>
-
+    <!-- TABLE -->
     <table>
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Medicine</th>
                 <th>Facility</th>
-                <th>Qty</th>
+                <th>Quantity</th>
                 <th>Status</th>
             </tr>
         </thead>
+
         <tbody id="table"></tbody>
     </table>
 
@@ -125,7 +179,7 @@ function render() {
 
     let low = 0;
     let expired = 0;
-    let html = "";
+    let table = "";
     let alerts = "";
 
     data.forEach(item => {
@@ -140,22 +194,22 @@ function render() {
             alerts += `<div>⚠ ${item.name} - ${item.facility}</div>`;
         }
 
-        html += `
+        table += `
         <tr>
             <td>${item.name}</td>
             <td>${item.facility}</td>
             <td>${item.quantity}</td>
             <td class="${isLow ? 'low' : 'ok'}">
-                ${isLow ? "LOW" : "OK"}
+                ${isLow ? "LOW STOCK" : "OK"}
             </td>
         </tr>`;
     });
 
-    document.getElementById("table").innerHTML = html;
+    document.getElementById("table").innerHTML = table;
     document.getElementById("total").innerText = data.length;
     document.getElementById("low").innerText = low;
     document.getElementById("expired").innerText = expired;
-    document.getElementById("alerts").innerHTML = alerts || "All systems normal ✔";
+    document.getElementById("alerts").innerHTML = alerts || "✔ All systems stable";
 }
 
 loadData();
