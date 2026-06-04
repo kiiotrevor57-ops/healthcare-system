@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nakuru County Executive Dashboard</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:#f4f7fb;
+}
+
+/* HEADER */
+.header{
+    background:linear-gradient(135deg,#002f6c,#005baa);
+    color:white;
+    padding:25px;
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.logo{
+    width:70px;
+    height:70px;
+    background:white;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#005baa;
+    font-weight:bold;
+}
+
+.container{
+    padding:25px;
+    max-width:1200px;
+    margin:auto;
+}
+
+/* CARDS */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+.card h2{
+    font-size:34px;
+    margin:0;
+    color:#005baa;
+}
+
+.card.danger h2{ color:#dc3545; }
+.card.warning h2{ color:#f39c12; }
+
+/* ALERT BOX */
+.alerts{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    border-left:6px solid #dc3545;
+    margin-bottom:20px;
+}
+
+.alert-item{
+    background:#ffe5e5;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th{
+    background:#005baa;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+
+.low{
+    background:#ffe5e5;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">LOGO</div>
+    <div>
+        <h1>Nakuru County Health Executive Dashboard</h1>
+        <p>High-Level Pharmaceutical Stock Monitoring</p>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- KPI -->
+<div class="grid">
+
+    <div class="card">
+        <h2 id="total">0</h2>
+        <p>Total Medicines</p>
+    </div>
+
+    <div class="card danger">
+        <h2 id="low">0</h2>
+        <p>Low Stock Alerts</p>
+    </div>
+
+    <div class="card warning">
+        <h2 id="expired">0</h2>
+        <p>Expired Items</p>
+    </div>
+
+</div>
+
+<!-- ALERTS -->
+<div class="alerts">
+    <h3>🚨 Critical Alerts</h3>
+    <div id="alertBox">Loading...</div>
+</div>
+
+<!-- TABLE -->
+<table>
+    <thead>
+        <tr>
+            <th>Medicine</th>
+            <th>Stock</th>
+            <th>Reorder Level</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="table"></tbody>
+</table>
+
+</div>
+
+<script>
+
+let dataStore = [];
+
+function load(){
+
+    fetch("/inventory")
+    .then(res => res.json())
+    .then(data => {
+
+        dataStore = data;
+
+        let low = 0;
+        let expired = 0;
+        let alerts = "";
+        let rows = "";
+
+        data.forEach(m => {
+
+            let isLow = m.quantity <= m.reorder_level;
+            let isExpired = new Date(m.expiry_date) < new Date();
+
+            if(isLow){
+                low++;
+                alerts += `<div class="alert-item">${m.name} is LOW on stock (${m.quantity})</div>`;
+            }
+
+            if(isExpired){
+                expired++;
+            }
+
+            rows += `
+            <tr class="${isLow ? 'low' : ''}">
+                <td>${m.name}</td>
+                <td>${m.quantity}</td>
+                <td>${m.reorder_level}</td>
+                <td>${isExpired ? 'EXPIRED' : isLow ? 'LOW STOCK' : 'OK'}</td>
+            </tr>`;
+        });
+
+        document.getElementById("total").innerText = data.length;
+        document.getElementById("low").innerText = low;
+        document.getElementById("expired").innerText = expired;
+
+        document.getElementById("alertBox").innerHTML =
+            alerts || "All systems normal";
+
+        document.getElementById("table").innerHTML = rows;
+
+    });
+}
+
+load();
+
+</script>
+
+</body>
+</html>
