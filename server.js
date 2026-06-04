@@ -2,8 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
-
+const path = require("path");
+app.use(express.static("public"));
 const app = express();
+
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
 
 app.use(cors());
 app.use(bodyParser.json());
