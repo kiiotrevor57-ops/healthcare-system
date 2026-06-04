@@ -1,330 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>County Health Inventory Dashboard</title>
 
-<title>Nakuru County Medical Inventory System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
 
-<style>
+        /* HEADER */
+        .header {
+            background: linear-gradient(90deg, #0b3d91, #1e88e5);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: "Segoe UI", sans-serif;
-}
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0b3d91;
+        }
 
-body{
-    background:#f4f7fb;
-    color:#333;
-}
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+        }
 
-/* HEADER */
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
 
-.header{
-    background:linear-gradient(135deg,#005baa,#003d73);
-    color:white;
-    padding:20px 40px;
-    display:flex;
-    align-items:center;
-    gap:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
-}
+        /* LAYOUT */
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
 
-.logo{
-    width:80px;
-    height:80px;
-    background:white;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#005baa;
-    font-weight:bold;
-    font-size:14px;
-}
+        /* KPI CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-.header-text h1{
-    font-size:28px;
-}
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
 
-.header-text p{
-    opacity:0.9;
-    margin-top:5px;
-}
+        .kpi {
+            font-size: 22px;
+            font-weight: bold;
+            color: #0b3d91;
+        }
 
-/* CONTAINER */
+        /* ALERT */
+        .alert {
+            background: #ffe5e5;
+            border-left: 5px solid red;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
 
-.container{
-    max-width:1400px;
-    margin:auto;
-    padding:25px;
-}
+        /* TABLE */
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-/* KPI CARDS */
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
 
-.stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:25px;
-}
+        th {
+            background: #f0f3f7;
+        }
 
-.stat-card{
-    background:white;
-    border-radius:15px;
-    padding:25px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-    text-align:center;
-}
+        .low {
+            background: #ffe6e6;
+            color: #b30000;
+            font-weight: bold;
+        }
 
-.stat-card h2{
-    font-size:38px;
-    color:#005baa;
-}
+        .expired {
+            background: #fff3cd;
+        }
 
-.stat-card p{
-    margin-top:8px;
-    color:#666;
-}
+        /* SEARCH */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
 
-.danger h2{
-    color:#dc3545;
-}
+        input {
+            width: 70%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
 
-.warning h2{
-    color:#f39c12;
-}
+        button {
+            padding: 10px 15px;
+            background: #0b3d91;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
-/* ALERTS */
-
-.alert-box{
-    background:white;
-    border-left:6px solid #dc3545;
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:25px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-}
-
-.alert-box h3{
-    color:#dc3545;
-    margin-bottom:10px;
-}
-
-.alert-item{
-    background:#ffe5e5;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:8px;
-}
-
-/* SEARCH BAR */
-
-.top-bar{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
-
-.top-bar input{
-    flex:1;
-    padding:12px;
-    border:1px solid #ddd;
-    border-radius:8px;
-}
-
-button{
-    background:#005baa;
-    color:white;
-    border:none;
-    padding:12px 18px;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#004488;
-}
-
-/* FORM */
-
-.card{
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:25px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-}
-
-.card h3{
-    margin-bottom:15px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:10px;
-}
-
-.grid input{
-    padding:10px;
-    border:1px solid #ddd;
-    border-radius:8px;
-}
-
-/* TABLE */
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    background:#005baa;
-    color:white;
-    padding:14px;
-}
-
-td{
-    padding:12px;
-    text-align:center;
-    border-bottom:1px solid #eee;
-}
-
-.low{
-    background:#ffe5e5;
-}
-
-.expired{
-    background:#fff4d6;
-}
-
-.footer{
-    text-align:center;
-    color:#777;
-    padding:20px;
-}
-
-</style>
+        button:hover {
+            background: #062b66;
+        }
+    </style>
 </head>
+
 <body>
 
 <div class="header">
-
-    <div class="logo">
-        LOGO
+    <div class="logo">NH</div>
+    <div>
+        <div class="title">County Health Inventory System</div>
+        <div class="subtitle">Medicines • Stock • Supply Chain Monitoring</div>
     </div>
-
-    <div class="header-text">
-        <h1>Nakuru County Medical Inventory System</h1>
-        <p>Real-Time Pharmaceutical Stock Monitoring & Supply Chain Management</p>
-    </div>
-
 </div>
 
 <div class="container">
 
-    <!-- KPI CARDS -->
-
-    <div class="stats">
-
-        <div class="stat-card">
-            <h2 id="totalItems">0</h2>
-            <p>Total Medicines</p>
+    <!-- KPI -->
+    <div class="cards">
+        <div class="card">
+            Total Medicines
+            <div class="kpi" id="total">0</div>
         </div>
 
-        <div class="stat-card danger">
-            <h2 id="lowStock">0</h2>
-            <p>Low Stock Alerts</p>
+        <div class="card">
+            Low Stock Alerts
+            <div class="kpi" id="low">0</div>
         </div>
 
-        <div class="stat-card warning">
-            <h2 id="expiringSoon">0</h2>
-            <p>Expired Medicines</p>
+        <div class="card">
+            Expired Items
+            <div class="kpi" id="expired">0</div>
         </div>
-
-        <div class="stat-card">
-            <h2>12</h2>
-            <p>Facilities Connected</p>
-        </div>
-
     </div>
 
-    <!-- ALERTS -->
-
-    <div class="alert-box">
-        <h3>🚨 Reorder Alerts</h3>
-        <div id="alerts">
-            No alerts.
-        </div>
+    <!-- ALERT -->
+    <div class="alert">
+        ⚠ Critical: Monitor low stock items to avoid facility shortages
     </div>
 
     <!-- SEARCH -->
-
-    <div class="top-bar">
-        <input
-            type="text"
-            id="search"
-            placeholder="Search medicine by name or QR ID..."
-            onkeyup="filterData()"
-        >
+    <div class="topbar">
+        <input id="search" placeholder="Search medicine..." onkeyup="filterData()">
         <button onclick="loadData()">Refresh</button>
     </div>
 
-    <!-- ADD MEDICINE -->
+    <!-- TABLE -->
+    <table>
+        <thead>
+            <tr>
+                <th>QR ID</th>
+                <th>Name</th>
+                <th>Batch</th>
+                <th>Expiry</th>
+                <th>Quantity</th>
+                <th>Reorder Level</th>
+            </tr>
+        </thead>
+        <tbody id="table"></tbody>
+    </table>
 
-    <div class="card">
-
-        <h3>Add Medicine</h3>
-
-        <div class="grid">
-
-            <input id="qr_id" placeholder="QR ID">
-            <input id="name" placeholder="Medicine Name">
-            <input id="batch" placeholder="Batch Number">
-            <input id="expiry" placeholder="Expiry Date (YYYY-MM-DD)">
-            <input id="qty" placeholder="Quantity">
-            <input id="reorder" placeholder="Reorder Level">
-
-        </div>
-
-        <br>
-
-        <button onclick="addMedicine()">Add Medicine</button>
-
-    </div>
-
-    <!-- INVENTORY TABLE -->
-
-    <div class="card">
-
-        <h3>Inventory Records</h3>
-
-        <table>
-
-            <thead>
-                <tr>
-                    <th>QR ID</th>
-                    <th>Medicine</th>
-                    <th>Batch</th>
-                    <th>Expiry Date</th>
-                    <th>Stock</th>
-                    <th>Reorder Level</th>
-                </tr>
-            </thead>
-
-            <tbody id="table"></tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-<div class="footer">
-    Nakuru County Digital Health Platform © 2026
 </div>
 
 <script>
@@ -332,45 +200,22 @@ td{
 let medicines = [];
 
 function loadData() {
-
     fetch("/inventory")
     .then(res => res.json())
     .then(data => {
-
         medicines = data;
-
         render(data);
-
+        updateKPIs(data);
     });
 }
 
 function render(data) {
-
     let html = "";
-
-    let lowCount = 0;
-    let expiredCount = 0;
-    let alertHtml = "";
 
     data.forEach(m => {
 
         let low = m.quantity <= m.reorder_level;
         let expired = new Date(m.expiry_date) < new Date();
-
-        if(low){
-
-            lowCount++;
-
-            alertHtml += `
-            <div class="alert-item">
-                <strong>${m.name}</strong> is below reorder level.
-                Current stock: ${m.quantity}
-            </div>`;
-        }
-
-        if(expired){
-            expiredCount++;
-        }
 
         html += `
         <tr class="${low ? 'low' : ''} ${expired ? 'expired' : ''}">
@@ -384,21 +229,22 @@ function render(data) {
     });
 
     document.getElementById("table").innerHTML = html;
-
-    document.getElementById("totalItems").innerText = data.length;
-    document.getElementById("lowStock").innerText = lowCount;
-    document.getElementById("expiringSoon").innerText = expiredCount;
-
-    document.getElementById("alerts").innerHTML =
-        alertHtml || "No medicines currently require reordering.";
 }
 
-function filterData(){
+function updateKPIs(data) {
 
-    let value =
-    document.getElementById("search")
-    .value
-    .toLowerCase();
+    document.getElementById("total").innerText = data.length;
+
+    let low = data.filter(m => m.quantity <= m.reorder_level).length;
+    let expired = data.filter(m => new Date(m.expiry_date) < new Date()).length;
+
+    document.getElementById("low").innerText = low;
+    document.getElementById("expired").innerText = expired;
+}
+
+function filterData() {
+
+    let value = document.getElementById("search").value.toLowerCase();
 
     let filtered = medicines.filter(m =>
         m.name.toLowerCase().includes(value) ||
@@ -406,41 +252,6 @@ function filterData(){
     );
 
     render(filtered);
-}
-
-function addMedicine(){
-
-    let data = {
-
-        qr_id: document.getElementById("qr_id").value,
-        name: document.getElementById("name").value,
-        batch_number: document.getElementById("batch").value,
-        expiry_date: document.getElementById("expiry").value,
-        quantity: parseInt(document.getElementById("qty").value),
-        reorder_level: parseInt(document.getElementById("reorder").value)
-
-    };
-
-    fetch("/add-medicine", {
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify(data)
-
-    })
-
-    .then(res => res.json())
-    .then(() => {
-
-        alert("Medicine added successfully");
-
-        loadData();
-
-    });
 }
 
 loadData();
