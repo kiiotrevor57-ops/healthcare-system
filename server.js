@@ -1,24 +1,22 @@
 const express = require("express");
-const path = require("path");
-
 const app = express();
-app.use(express.static("public"));
-
-// serve static files
-app.use(express.static("public"));
-
-// dashboard route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
-});
-
-// qr page route (optional but safe)
-app.get("/qr", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "qr.html"));
-});
-
+const path = require("path");
 const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Server running on port", PORT);
+});
+app.use(express.json());
+app.use(express.static("public"));
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+// MAIN ROUTES
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
+
+app.get("/executive", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "executive.html"));
 });
