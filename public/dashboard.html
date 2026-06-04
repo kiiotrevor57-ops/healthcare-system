@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Healthcare Inventory System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #2c7be5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 10px;
+            width: 60%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #2c7be5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1a5fd1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        th {
+            background: #f0f3f7;
+        }
+
+        .low {
+            background: #ffe5e5;
+        }
+
+        .expired {
+            background: #fff3cd;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form input {
+            width: 100%;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    💊 Healthcare Inventory System Dashboard
+</div>
+
+<div class="container">
+
+    <!-- SEARCH -->
+    <div class="top-bar">
+        <input type="text" id="search" placeholder="Search medicine by name or QR ID..." onkeyup="filterData()">
+        <button onclick="loadData()">Refresh</button>
+    </div>
+
+    <!-- ADD MEDICINE FORM -->
+    <div class="card">
+        <h3>Add Medicine</h3>
+
+        <div class="grid form">
+            <input id="qr_id" placeholder="QR ID">
+            <input id="name" placeholder="Medicine Name">
+            <input id="batch" placeholder="Batch Number">
+            <input id="expiry" placeholder="Expiry Date (YYYY-MM-DD)">
+            <input id="qty" placeholder="Quantity">
+            <input id="reorder" placeholder="Reorder Level">
+        </div>
+
+        <button onclick="addMedicine()">Add Medicine</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>QR ID</th>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Expiry</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                </tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+let medicines = [];
+
+// LOAD DATA
+function loadData() {
+    fetch("http://localhost:3000/inventory")
+    .then(res => res.json())
+    .then(data => {
+        medicines = data;
+        render(data);
+    });
+}
+
+// RENDER TABLE
+function render(data) {
+    let html = "";
+
+    data.forEach(m => {
+
+        let low = m.quantity <= m.reorder_level;
+        let expired = new Date(m.expiry_date) < new Date();
+
+        html += `
+        <tr class="${low ? 'low' : ''} ${expired ? 'expired' : ''}">
+            <td>${m.qr_id}</td>
+            <td>${m.name}</td>
+            <td>${m.batch_number}</td>
+            <td>${m.expiry_date}</td>
+            <td>${m.quantity}</td>
+            <td>${m.reorder_level}</td>
+        </tr>`;
+    });
+
+    document.getElementById("table").innerHTML = html;
+}
+
+// SEARCH FILTER
+function filterData() {
+    let value = document.getElementById("search").value.toLowerCase();
+
+    let filtered = medicines.filter(m =>
+        m.name.toLowerCase().includes(value) ||
+        m.qr_id.toLowerCase().includes(value)
+    );
+
+    render(filtered);
+}
+
+// ADD MEDICINE
+function addMedicine() {
+
+    let data = {
+        qr_id: document.getElementById("qr_id").value,
+        name: document.getElementById("name").value,
+        batch_number: document.getElementById("batch").value,
+        expiry_date: document.getElementById("expiry").value,
+        quantity: parseInt(document.getElementById("qty").value),
+        reorder_level: parseInt(document.getElementById("reorder").value)
+    };
+
+    fetch("http://localhost:3000/add-medicine", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("Medicine added!");
+        loadData();
+    });
+}
+
+// INIT
+loadData();
+
+</script>
+
+</body>
+</html>

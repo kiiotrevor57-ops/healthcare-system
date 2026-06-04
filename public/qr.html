@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Healthcare QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 8px;
+        }
+
+        button {
+            background: #2c7be5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>💊 QR Medicine Scanner</h2>
+
+    <!-- CAMERA SCANNER -->
+    <div id="reader"></div>
+
+    <p>Scanned QR ID:</p>
+    <input type="text" id="qr_id" placeholder="QR will appear here">
+
+    <input type="number" id="quantity" placeholder="Quantity">
+
+    <button onclick="issueMedicine()">Issue Medicine</button>
+    <button onclick="receiveStock()">Receive Stock</button>
+
+</div>
+
+<script>
+
+// --------------------
+// QR SCANNER
+// --------------------
+function onScanSuccess(decodedText) {
+    document.getElementById("qr_id").value = decodedText;
+}
+
+let scanner = new Html5QrcodeScanner(
+    "reader",
+    { fps: 10, qrbox: 250 }
+);
+
+scanner.render(onScanSuccess);
+
+// --------------------
+// ISSUE MEDICINE
+// --------------------
+function issueMedicine() {
+    fetch("http://localhost:3000/issue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            qr_id: document.getElementById("qr_id").value,
+            quantity: Number(document.getElementById("quantity").value)
+        })
+    })
+    .then(res => res.json())
+    .then(data => alert(data.message));
+}
+
+// --------------------
+// RECEIVE STOCK
+// --------------------
+function receiveStock() {
+    fetch("http://localhost:3000/receive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            qr_id: document.getElementById("qr_id").value,
+            quantity: Number(document.getElementById("quantity").value)
+        })
+    })
+    .then(res => res.json())
+    .then(data => alert(data.message));
+}
+
+</script>
+
+</body>
+</html>
